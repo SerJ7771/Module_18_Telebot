@@ -1,0 +1,23 @@
+import telebot
+
+TOKEN = "1687858324:AAFpChQnuSmVtgKt4zQjshDaDfjTkYz5ok4"
+
+bot = telebot.TeleBot(TOKEN)
+
+# Обрабатываются все документы и аудиозаписи
+@bot.message_handler(content_types = ['voice','text','document','audio'])
+def function_name(message):
+    bot.reply_to(message, "Привет!")
+    pass
+
+# Обрабатываются все сообщения, содержащие команды '/start' or '/help'.
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.send_message(message.chat.id, f"Рад Вас видеть, {message.chat.username}")
+
+# Обрабатываются все сообщения, содержащие сообщения с фотографией
+@bot.message_handler(content_types=['photo'])
+def say_lmao(message: telebot.types.Message):
+    bot.reply_to(message, 'Nice meme XDD')
+
+bot.polling(none_stop=True)
