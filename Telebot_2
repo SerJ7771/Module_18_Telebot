@@ -1,0 +1,13 @@
+import telebot
+
+TOKEN = "1687858324:AAFpChQnuSmVtgKt4zQjshDaDfjTkYz5ok4"
+
+bot = telebot.TeleBot(TOKEN)
+
+# Обрабатываются все сообщения, содержащие сообщения с фотографией
+@bot.message_handler(content_types=['photo'])
+def say_lmao(message: telebot.types.Message):
+    bot.reply_to(message, 'Отличное фото')
+    pass
+
+bot.polling(none_stop=True)
