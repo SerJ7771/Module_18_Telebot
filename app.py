@@ -1,19 +1,8 @@
 import telebot
-import requests
-import json
-
-TOKEN = "1599342418:AAF_r4fxNFAfz9Lu_WTzg0V9-t8n-VK86TE"
+from config import keys, TOKEN
+from utils import ConvertionException, ExchangeConverter
 
 bot = telebot.TeleBot(TOKEN)
-
-keys = {
-    'доллар''USD'
-    'рубль''RUR'
-    'швейцарский франк''CHF'
-}
-
-class ConvertionsException(Exception):
-    pass
 
 @bot.message_handler(commands=['start', 'help'])
 def help(message: telebot.types.Message):
@@ -31,36 +20,17 @@ def values(message: telebot.types.Message):
 
 @bot.message_handler(content_types=['text'])
 def convert(message: telebot.types.Message):
-    values = message.text.split(' ')
-
-    if len(values) > 3:
-        raise ConvertionsException('Много парметров.')
-
-    quote, base, amount = values
-
-    if quote == base:
-        raise ConvertionsException(f'Невозможно конвертировать одинаковык валюты {base}. Введите верное значение.')
-
     try:
-        quote_ticker = keys[quote]
-    except KeyError:
-        raise ConvertionsException(f'Не удалось обработать валюту{quote}')
+        values = message.text.split(' ')
 
-    try:
-        base_ticker = keys[base]
-    except KeyError:
-        raise ConvertionsException(f'Не удалось обработать валюту{quote}')
+        if len(values) > 4:
+            raise ConvertionException('Много парметров.')
 
-    try:
-            amount = float(amount)
-    except ValueError:
-        raise ConvertionsException(f'Не удалось обработать количество{amount}')
+        quote, base, amount = values
+        total_base = ExchangeConverter.convert(quote,base,amount)
 
-    r = requests.get(f"https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}")
-    total_base = json.loads(r.content)[dict[base]]
-    text = f'Цена {amount} {quote} в {base} = {total_base}'
-    bot.send_message(message.chat.id, text)
+        text = f'Переводим {base} в {quote}\n{amount} у.е. = {total_base}'
+        bot.send_message(message.chat.id, text)
 
 bot.polling(none_stop=True)
-
 
