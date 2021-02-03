@@ -1,6 +1,6 @@
 import telebot
+
 from config import keys, TOKEN
-from utils import ConvertionException, ExchangeConverter
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -24,12 +24,16 @@ def convert(message: telebot.types.Message):
         values = message.text.split(' ')
 
         if len(values) > 4:
-            raise ConvertionException('Много парметров.')
+            raise utils.ConvertionException('Много парметров.')
 
         quote, base, amount = values
-        total_base = ExchangeConverter.convert(quote,base,amount)
-
-        text = f'Переводим {base} в {quote}\n{amount} у.е. = {total_base}'
+        total_base = utils.ExchangeConverter.convert(quote, base, amount)
+    except utils.ConvertionException as e:
+        bot.reply_to(message, f'Ошибка прльзователяю.\n {e}')
+    except Exception as e:
+        bot.reply_to(message, f'Не удалось обработать запрос\n{e}')
+    else:
+        text = f'Цена {amount} {quote} в {base} - {total_base}'
         bot.send_message(message.chat.id, text)
 
 bot.polling(none_stop=True)
